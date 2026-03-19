@@ -3079,6 +3079,7 @@ function VPCTOInterviewPrep() {
   });
   const [activeSection, setActiveSection] = React.useState(0);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth <= 800);
   const [showQuiz, setShowQuiz] = React.useState(false);
   const [syncOpen, setSyncOpen] = React.useState(false);
   const [githubToken, setGithubToken] = React.useState(() => localStorage.getItem('vpcto-github-token') || '');
@@ -3089,6 +3090,13 @@ function VPCTOInterviewPrep() {
   const phasedModules = modules.filter((m) => m.phase === activePhase);
   const progress = calculateProgress(state);
   const totalMinutes = getTotalMinutes(modules);
+
+  // Track mobile viewport
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 800);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Save progress to localStorage
   React.useEffect(() => {
@@ -3452,7 +3460,7 @@ function VPCTOInterviewPrep() {
   function renderSidebar() {
     return React.createElement(
       'div',
-      { style: { ...styles.sidebar, ...(sidebarOpen ? { left: 0 } : {}) } },
+      { style: { ...styles.sidebar, left: (isMobile && !sidebarOpen) ? '-280px' : '0' } },
       React.createElement(
         'div',
         { style: styles.sidebarHeader },
@@ -3585,11 +3593,11 @@ function VPCTOInterviewPrep() {
   return React.createElement(
     'div',
     { style: styles.container },
-    sidebarOpen && React.createElement('div', { style: styles.sidebarMobile, onClick: () => setSidebarOpen(false) }),
+    isMobile && sidebarOpen && React.createElement('div', { style: styles.sidebarMobile, onClick: () => setSidebarOpen(false) }),
     React.createElement(
       'button',
       {
-        style: { ...styles.menuToggleBtn, ...(sidebarOpen ? { display: 'block' } : {}) },
+        style: { ...styles.menuToggleBtn, display: isMobile ? 'block' : 'none' },
         onClick: () => setSidebarOpen(!sidebarOpen),
       },
       sidebarOpen ? '✕' : '☰'
@@ -3597,7 +3605,7 @@ function VPCTOInterviewPrep() {
     renderSidebar(),
     React.createElement(
       'div',
-      { style: { ...styles.mainContent, ...(window.innerWidth < 800 && !sidebarOpen ? styles.mainContentFullWidth : {}) } },
+      { style: { ...styles.mainContent, ...(isMobile ? { marginLeft: 0, padding: '60px 20px 40px' } : {}) } },
       renderMainContent()
     )
   );
