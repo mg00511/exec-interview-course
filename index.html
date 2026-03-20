@@ -2550,8 +2550,7 @@ function getStyles(c) {
     flex: 1,
     marginLeft: '280px',
     overflowY: 'auto',
-    padding: '40px 60px',
-    maxWidth: '800px',
+    padding: '40px 80px 40px 60px',
   },
   mainContentFullWidth: {
     marginLeft: 0,
@@ -2601,28 +2600,6 @@ function getStyles(c) {
     textTransform: 'uppercase',
   },
 
-  // Theme Toggle
-  themeToggle: {
-    padding: '6px 12px',
-    backgroundColor: 'transparent',
-    border: `1px solid ${c.border}`,
-    color: c.muted,
-    fontSize: '12px',
-    fontFamily: '"Fira Code", monospace',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    marginTop: '12px',
-    marginBottom: '8px',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-  },
-  themeToggleHover: {
-    borderColor: c.accent,
-    color: c.accent,
-  },
-
   // Progress
   progressLabel: {
     fontSize: '12px',
@@ -2643,42 +2620,20 @@ function getStyles(c) {
     backgroundColor: c.accent,
     transition: 'width 0.3s ease',
   },
-  totalTime: {
-    fontSize: '12px',
-    color: c.muted,
-    marginBottom: '32px',
-    fontFamily: '"Fira Code", monospace',
-  },
-
-  // Phase Tabs
-  phaseTabs: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    marginBottom: '24px',
-    paddingBottom: '24px',
-    borderBottom: `1px solid ${c.border}`,
-  },
-  phaseTab: {
-    padding: '8px 12px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: c.muted,
+  // Phase Dropdown
+  phaseDropdown: {
+    width: '100%',
+    padding: '10px 12px',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.border}`,
+    color: c.headingText,
     fontSize: '12px',
     fontFamily: '"Fira Code", monospace',
     cursor: 'pointer',
     borderRadius: '4px',
-    transition: 'all 0.2s ease',
-    fontWeight: 500,
-    textAlign: 'left',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  phaseTabActive: {
-    backgroundColor: c.hoverBg,
-    color: c.accent,
-    fontWeight: 600,
+    marginBottom: '20px',
+    appearance: 'auto',
+    WebkitAppearance: 'auto',
   },
 
   // Module List
@@ -2806,20 +2761,6 @@ function getStyles(c) {
     color: c.text,
     marginBottom: '20px',
     margin: '0 0 20px 0',
-  },
-  cardBlock: {
-    backgroundColor: c.cardBg,
-    borderLeft: `4px solid ${c.accent}`,
-    padding: '16px 20px',
-    marginBottom: '16px',
-    borderRadius: '2px',
-  },
-  cardBlockHeading: {
-    fontSize: '16px',
-    fontWeight: 700,
-    color: c.headingText,
-    marginBottom: '8px',
-    marginTop: '0',
   },
   bullet: {
     marginLeft: '24px',
@@ -3002,27 +2943,41 @@ function getStyles(c) {
     fontWeight: 600,
   },
 
-  // Sync
-  syncSection: {
+  // Sync & Theme
+  bottomBar: {
     marginTop: 'auto',
-    paddingTop: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: '16px',
     borderTop: `1px solid ${c.border}`,
   },
   syncButton: {
-    width: '100%',
-    padding: '8px',
-    backgroundColor: c.hoverBg,
+    flex: 1,
+    marginRight: '8px',
+    padding: '8px 16px',
+    backgroundColor: 'transparent',
     border: `1px solid ${c.border}`,
     color: c.muted,
     fontSize: '12px',
     fontFamily: '"Fira Code", monospace',
     cursor: 'pointer',
-    borderRadius: '3px',
+    borderRadius: '4px',
     transition: 'all 0.2s ease',
   },
-  syncButtonActive: {
-    borderColor: c.accent,
-    color: c.accent,
+  themeToggleIcon: {
+    backgroundColor: 'transparent',
+    border: `1px solid ${c.border}`,
+    color: c.muted,
+    fontSize: '16px',
+    width: '32px',
+    height: '32px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
   },
   syncPanel: {
     marginTop: '16px',
@@ -3097,10 +3052,10 @@ function getStyles(c) {
 function renderContent(text, styles, c) {
   if (!text) return null;
 
-  // Split text into chunks by bold-header patterns like **Something:**
-  // This handles both \n\n separated paragraphs AND inline bold headers
+  // Split text into chunks by bold-header patterns like **Something:** or **Something**
+  // Bold headers at the start of a section become accent-colored section headers
   const chunks = [];
-  const headerPattern = /\*\*([^*]+)\*\*:\s*/g;
+  const headerPattern = /\*\*([^*]+)\*\*:?\s*/g;
   let lastIndex = 0;
   let match;
   const matches = [];
@@ -3136,7 +3091,7 @@ function renderContent(text, styles, c) {
     const contentStart = matches[m].end;
     const contentEnd = m + 1 < matches.length ? matches[m + 1].index : text.length;
     const content = text.substring(contentStart, contentEnd).trim();
-    chunks.push({ type: 'card', header: matches[m].header, content: content });
+    chunks.push({ type: 'section', header: matches[m].header, content: content });
   }
 
   return chunks.map((chunk, i) => {
@@ -3153,20 +3108,23 @@ function renderContent(text, styles, c) {
       );
     }
 
-    // Card block
+    // Section paragraph with accent-colored bold header
     const contentParts = chunk.content.split(/\*\*(.*?)\*\*/g);
+    const headerEl = React.createElement(
+      'strong',
+      { style: { color: c.accent, fontWeight: 700 } },
+      chunk.header
+    );
+
     return React.createElement(
-      'div',
-      { key: i, style: styles.cardBlock },
-      React.createElement('h3', { style: styles.cardBlockHeading }, chunk.header),
-      chunk.content && React.createElement(
-        'p',
-        { style: { ...styles.bodyText, marginBottom: '0' } },
-        ...contentParts.map((part, j) =>
-          j % 2 === 1
-            ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
-            : part
-        )
+      'p',
+      { key: i, style: { ...styles.bodyText, marginBottom: '24px' } },
+      headerEl,
+      ': ',
+      ...contentParts.map((part, j) =>
+        j % 2 === 1
+          ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
+          : part
       )
     );
   });
@@ -3541,7 +3499,7 @@ function VPCTOInterviewPrep() {
 
     return React.createElement(
       'div',
-      null,
+      { style: { maxWidth: '780px' } },
       React.createElement(
         'div',
         { style: styles.moduleHeader },
@@ -3616,50 +3574,26 @@ function VPCTOInterviewPrep() {
         { style: styles.sidebarHeader },
         React.createElement('div', { style: styles.logoMark }, '◆'),
         React.createElement('div', { style: styles.courseTitle }, 'VP/CTO Interview Prep'),
-        React.createElement('div', { style: styles.courseSubtitle }, 'Executive Course'),
-        React.createElement(
-          'button',
-          {
-            style: styles.themeToggle,
-            onClick: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
-            onMouseEnter: (e) => {
-              e.currentTarget.style.borderColor = colors.accent;
-              e.currentTarget.style.color = colors.accent;
-            },
-            onMouseLeave: (e) => {
-              e.currentTarget.style.borderColor = colors.border;
-              e.currentTarget.style.color = colors.muted;
-            },
-          },
-          theme === 'dark' ? '☀ Light' : '☾ Dark'
-        )
+        React.createElement('div', { style: styles.courseSubtitle }, 'Executive Course')
       ),
       React.createElement('div', { style: styles.progressLabel }, `${progress}% complete · ${phasedModules.filter((m) => state[m.id]?.quizPassed).length}/${modules.length} modules`),
       React.createElement('div', { style: styles.progressBar }, React.createElement('div', { style: { ...styles.progressBarFill, width: `${progress}%` } })),
-      React.createElement('div', { style: styles.totalTime }, `~${totalMinutes} min reading + quizzes`),
       React.createElement(
-        'div',
-        { style: styles.phaseTabs },
+        'select',
+        {
+          style: styles.phaseDropdown,
+          value: activePhase,
+          onChange: (e) => {
+            const phase = Number(e.target.value);
+            setActivePhase(phase);
+            const firstModuleInPhase = modules.find((m) => m.phase === phase);
+            if (firstModuleInPhase) {
+              setActiveModule(firstModuleInPhase.id);
+            }
+          },
+        },
         ...[1, 2, 3, 4, 5, 6, 7].map((phase) =>
-          React.createElement(
-            'button',
-            {
-              key: phase,
-              style: {
-                ...styles.phaseTab,
-                ...(activePhase === phase && styles.phaseTabActive),
-              },
-              onClick: () => {
-                setActivePhase(phase);
-                const firstModuleInPhase = modules.find((m) => m.phase === phase);
-                if (firstModuleInPhase) {
-                  setActiveModule(firstModuleInPhase.id);
-                }
-              },
-            },
-            React.createElement('span', { style: { opacity: 0.5, minWidth: '22px' } }, `P${phase}`),
-            phaseNames[phase]
-          )
+          React.createElement('option', { key: phase, value: phase }, `P${phase} — ${phaseNames[phase]}`)
         )
       ),
       React.createElement(
@@ -3706,49 +3640,54 @@ function VPCTOInterviewPrep() {
           )
         )
       ),
+      syncOpen &&
+        React.createElement(
+          'div',
+          { style: styles.syncPanel },
+          React.createElement('input', {
+            type: 'password',
+            placeholder: 'GitHub Token',
+            style: styles.syncInput,
+            value: githubToken,
+            onChange: (e) => setGithubToken(e.target.value),
+          }),
+          React.createElement('input', {
+            type: 'text',
+            placeholder: 'owner/repo',
+            style: styles.syncInput,
+            value: syncRepo,
+            onChange: (e) => setSyncRepo(e.target.value),
+          }),
+          React.createElement(
+            'button',
+            {
+              style: styles.syncActionBtn,
+              onClick: handleSyncSave,
+              onMouseEnter: (e) => (e.currentTarget.style.opacity = '0.9'),
+              onMouseLeave: (e) => (e.currentTarget.style.opacity = '1'),
+            },
+            syncStatus || 'Save Config'
+          )
+        ),
       React.createElement(
         'div',
-        { style: styles.syncSection },
+        { style: styles.bottomBar },
         React.createElement(
           'button',
           {
-            style: {
-              ...styles.syncButton,
-              ...(syncOpen && styles.syncButtonActive),
-            },
+            style: styles.syncButton,
             onClick: () => setSyncOpen(!syncOpen),
           },
-          syncOpen ? '⊘ Close' : '⟳ GitHub Sync'
+          syncOpen ? '⊘ Close' : (githubToken && syncRepo ? '✓ Synced' : '⟳ Sync')
         ),
-        syncOpen &&
-          React.createElement(
-            'div',
-            { style: styles.syncPanel },
-            React.createElement('input', {
-              type: 'password',
-              placeholder: 'GitHub Token',
-              style: styles.syncInput,
-              value: githubToken,
-              onChange: (e) => setGithubToken(e.target.value),
-            }),
-            React.createElement('input', {
-              type: 'text',
-              placeholder: 'owner/repo',
-              style: styles.syncInput,
-              value: syncRepo,
-              onChange: (e) => setSyncRepo(e.target.value),
-            }),
-            React.createElement(
-              'button',
-              {
-                style: styles.syncActionBtn,
-                onClick: handleSyncSave,
-                onMouseEnter: (e) => (e.currentTarget.style.opacity = '0.9'),
-                onMouseLeave: (e) => (e.currentTarget.style.opacity = '1'),
-              },
-              syncStatus || 'Save Config'
-            )
-          )
+        React.createElement(
+          'button',
+          {
+            style: styles.themeToggleIcon,
+            onClick: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+          },
+          '✻'
+        )
       )
     );
   }
