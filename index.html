@@ -2978,25 +2978,21 @@ function getStyles(c) {
     marginBottom: '24px',
   },
   moduleItem: {
-    padding: '12px',
-    marginBottom: '8px',
-    backgroundColor: 'transparent',
-    border: `1px solid ${c.border}`,
-    borderRadius: '3px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'flex-start',
     gap: '12px',
-  },
-  moduleItemHover: {
-    backgroundColor: c.hoverBg,
-    borderColor: c.border,
+    width: '100%',
+    padding: '12px 14px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    borderRadius: 8,
+    marginBottom: 2,
+    textAlign: 'left',
+    transition: 'background 0.2s',
   },
   moduleItemActive: {
-    backgroundColor: c.hoverBg,
-    borderColor: c.accent,
-    borderLeft: `3px solid ${c.accent}`,
+    background: c.hoverBg,
   },
   moduleIcon: {
     fontSize: '20px',
@@ -3972,20 +3968,7 @@ function VPCTOInterviewPrep() {
                 ...styles.moduleItem,
                 ...(activeModule === mod.id && styles.moduleItemActive),
               },
-              tabIndex: -1,
-              onClick: (e) => { setActiveModule(mod.id); e.currentTarget.blur(); },
-              onMouseEnter: (e) => {
-                if (activeModule !== mod.id) {
-                  e.currentTarget.style.backgroundColor = colors.hoverBg;
-                  e.currentTarget.style.borderColor = colors.border;
-                }
-              },
-              onMouseLeave: (e) => {
-                if (activeModule !== mod.id) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = colors.border;
-                }
-              },
+              onClick: () => setActiveModule(mod.id),
             },
             React.createElement('div', { style: styles.moduleIcon }, mod.icon),
             React.createElement(
