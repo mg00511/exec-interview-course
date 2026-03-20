@@ -2476,20 +2476,59 @@ const modules = [
 // React 18 + Babel Standalone (No build tools required)
 // ============================================================================
 
-const styles = {
+const phaseNames = {
+  1: 'Foundation & Self-Assessment',
+  2: 'Technical Vision & Strategy',
+  3: 'Org Design & Leadership',
+  4: 'Execution & Operations',
+  5: 'Business & Communication',
+  6: 'Behavioral Stories',
+  7: 'Mock Interviews'
+};
+
+function getThemeColors(theme) {
+  if (theme === 'light') {
+    return {
+      bg: '#FAF8F5',
+      sidebarBg: '#FFFFFF',
+      text: '#4A4540',
+      headingText: '#1A1815',
+      muted: '#8A8478',
+      accent: '#B8864A',
+      border: '#E8E2D6',
+      cardBg: '#F0EDE7',
+      hoverBg: '#F0EDE7',
+    };
+  }
+  // dark theme (default)
+  return {
+    bg: '#0F1923',
+    sidebarBg: '#141D2A',
+    text: '#C8C2B6',
+    headingText: '#E8E2D6',
+    muted: '#7B7567',
+    accent: '#D4A574',
+    border: '#1a2635',
+    cardBg: '#141D2A',
+    hoverBg: '#1a2635',
+  };
+}
+
+function getStyles(c) {
+  return {
   // Layout
   container: {
     display: 'flex',
     height: '100vh',
-    backgroundColor: '#0F1923',
-    color: '#C8C2B6',
+    backgroundColor: c.bg,
+    color: c.text,
     fontFamily: '"Source Serif 4", serif',
     overflow: 'hidden',
   },
   sidebar: {
     width: '280px',
-    backgroundColor: '#141D2A',
-    borderRight: '1px solid #1a2635',
+    backgroundColor: c.sidebarBg,
+    borderRight: `1px solid ${c.border}`,
     padding: '24px',
     overflowY: 'auto',
     display: 'flex',
@@ -2514,7 +2553,7 @@ const styles = {
     marginLeft: '280px',
     overflowY: 'auto',
     padding: '40px 60px',
-    maxWidth: '1000px',
+    maxWidth: '800px',
   },
   mainContentFullWidth: {
     marginLeft: 0,
@@ -2526,9 +2565,9 @@ const styles = {
     top: '20px',
     left: '20px',
     zIndex: 101,
-    backgroundColor: '#D4A574',
+    backgroundColor: c.accent,
     border: 'none',
-    color: '#0F1923',
+    color: c.bg,
     fontSize: '20px',
     width: '40px',
     height: '40px',
@@ -2540,53 +2579,75 @@ const styles = {
   // Sidebar Header
   sidebarHeader: {
     marginBottom: '32px',
-    borderBottom: '1px solid #1a2635',
+    borderBottom: `1px solid ${c.border}`,
     paddingBottom: '24px',
   },
   logoMark: {
     fontSize: '32px',
     marginBottom: '8px',
-    color: '#D4A574',
+    color: c.accent,
   },
   courseTitle: {
     fontSize: '16px',
     fontWeight: 700,
-    color: '#E8E2D6',
+    color: c.headingText,
     marginBottom: '4px',
     fontFamily: '"Fira Code", monospace',
     letterSpacing: '0.5px',
   },
   courseSubtitle: {
     fontSize: '11px',
-    color: '#7B7567',
+    color: c.muted,
     fontFamily: '"Fira Code", monospace',
     letterSpacing: '1px',
     textTransform: 'uppercase',
   },
 
+  // Theme Toggle
+  themeToggle: {
+    padding: '6px 12px',
+    backgroundColor: 'transparent',
+    border: `1px solid ${c.border}`,
+    color: c.muted,
+    fontSize: '12px',
+    fontFamily: '"Fira Code", monospace',
+    cursor: 'pointer',
+    borderRadius: '4px',
+    marginTop: '12px',
+    marginBottom: '8px',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  themeToggleHover: {
+    borderColor: c.accent,
+    color: c.accent,
+  },
+
   // Progress
   progressLabel: {
     fontSize: '12px',
-    color: '#7B7567',
+    color: c.muted,
     marginBottom: '8px',
     fontFamily: '"Fira Code", monospace',
   },
   progressBar: {
     width: '100%',
     height: '4px',
-    backgroundColor: '#0F1923',
+    backgroundColor: c.border,
     borderRadius: '2px',
     marginBottom: '16px',
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#D4A574',
+    backgroundColor: c.accent,
     transition: 'width 0.3s ease',
   },
   totalTime: {
     fontSize: '12px',
-    color: '#7B7567',
+    color: c.muted,
     marginBottom: '32px',
     fontFamily: '"Fira Code", monospace',
   },
@@ -2594,29 +2655,32 @@ const styles = {
   // Phase Tabs
   phaseTabs: {
     display: 'flex',
-    gap: '8px',
-    marginBottom: '32px',
+    flexDirection: 'column',
+    gap: '4px',
+    marginBottom: '24px',
     paddingBottom: '24px',
-    borderBottom: '1px solid #1a2635',
-    flexWrap: 'wrap',
+    borderBottom: `1px solid ${c.border}`,
   },
   phaseTab: {
-    padding: '6px 12px',
-    backgroundColor: '#0F1923',
-    border: '1px solid #1a2635',
-    color: '#7B7567',
-    fontSize: '11px',
+    padding: '8px 12px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: c.muted,
+    fontSize: '12px',
     fontFamily: '"Fira Code", monospace',
     cursor: 'pointer',
-    borderRadius: '3px',
+    borderRadius: '4px',
     transition: 'all 0.2s ease',
-    fontWeight: 600,
-    letterSpacing: '0.5px',
+    fontWeight: 500,
+    textAlign: 'left',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
   phaseTabActive: {
-    backgroundColor: '#D4A574',
-    color: '#0F1923',
-    borderColor: '#D4A574',
+    backgroundColor: c.hoverBg,
+    color: c.accent,
+    fontWeight: 600,
   },
 
   // Module List
@@ -2629,7 +2693,7 @@ const styles = {
     padding: '12px',
     marginBottom: '8px',
     backgroundColor: 'transparent',
-    border: '1px solid #1a2635',
+    border: `1px solid ${c.border}`,
     borderRadius: '3px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
@@ -2638,12 +2702,12 @@ const styles = {
     gap: '12px',
   },
   moduleItemHover: {
-    backgroundColor: '#1a2635',
-    borderColor: '#2a3640',
+    backgroundColor: c.hoverBg,
+    borderColor: c.border,
   },
   moduleItemActive: {
-    backgroundColor: '#1a2635',
-    borderColor: '#D4A574',
+    backgroundColor: c.hoverBg,
+    borderColor: c.accent,
     borderLeftWidth: '3px',
   },
   moduleIcon: {
@@ -2658,12 +2722,12 @@ const styles = {
   moduleItemTitle: {
     fontSize: '13px',
     fontWeight: 600,
-    color: '#E8E2D6',
+    color: c.headingText,
     marginBottom: '4px',
   },
   moduleItemMeta: {
     fontSize: '11px',
-    color: '#7B7567',
+    color: c.muted,
     fontFamily: '"Fira Code", monospace',
   },
   statusIcon: {
@@ -2678,7 +2742,7 @@ const styles = {
   },
   moduleNumber: {
     fontSize: '12px',
-    color: '#7B7567',
+    color: c.muted,
     fontFamily: '"Fira Code", monospace',
     marginBottom: '12px',
     letterSpacing: '1px',
@@ -2687,13 +2751,13 @@ const styles = {
   moduleTitle: {
     fontSize: '42px',
     fontWeight: 700,
-    color: '#E8E2D6',
+    color: c.headingText,
     marginBottom: '12px',
     lineHeight: '1.2',
   },
   moduleSubtitle: {
     fontSize: '18px',
-    color: '#C8C2B6',
+    color: c.text,
     fontStyle: 'italic',
     marginBottom: '0',
   },
@@ -2701,28 +2765,27 @@ const styles = {
   // Section Tabs
   sectionTabs: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: '16px',
     marginBottom: '40px',
-    borderBottom: '1px solid #1a2635',
+    borderBottom: `1px solid ${c.border}`,
     paddingBottom: '16px',
-    overflowX: 'auto',
   },
   sectionTab: {
     padding: '8px 16px',
     backgroundColor: 'transparent',
     border: 'none',
-    color: '#7B7567',
+    color: c.muted,
     fontSize: '14px',
     fontWeight: 600,
     cursor: 'pointer',
     position: 'relative',
-    whiteSpace: 'nowrap',
     transition: 'color 0.2s ease',
     borderBottom: '2px solid transparent',
   },
   sectionTabActive: {
-    color: '#E8E2D6',
-    borderBottomColor: '#D4A574',
+    color: c.headingText,
+    borderBottomColor: c.accent,
   },
   sectionDot: {
     display: 'inline-block',
@@ -2737,16 +2800,30 @@ const styles = {
   sectionHeading: {
     fontSize: '24px',
     fontWeight: 700,
-    color: '#E8E2D6',
+    color: c.headingText,
     marginBottom: '24px',
     marginTop: '0',
   },
   bodyText: {
     fontSize: '16px',
     lineHeight: '1.7',
-    color: '#C8C2B6',
+    color: c.text,
     marginBottom: '20px',
     margin: '0 0 20px 0',
+  },
+  cardBlock: {
+    backgroundColor: c.cardBg,
+    borderLeft: `4px solid ${c.accent}`,
+    padding: '16px 20px',
+    marginBottom: '16px',
+    borderRadius: '2px',
+  },
+  cardBlockHeading: {
+    fontSize: '16px',
+    fontWeight: 700,
+    color: c.headingText,
+    marginBottom: '8px',
+    marginTop: '0',
   },
   bullet: {
     marginLeft: '24px',
@@ -2757,9 +2834,9 @@ const styles = {
   completeBtn: {
     marginTop: '40px',
     padding: '12px 24px',
-    backgroundColor: '#1a2635',
-    border: '1px solid #D4A574',
-    color: '#D4A574',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.accent}`,
+    color: c.accent,
     fontSize: '14px',
     fontWeight: 600,
     fontFamily: '"Fira Code", monospace',
@@ -2768,8 +2845,8 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   completeBtnHover: {
-    backgroundColor: '#D4A574',
-    color: '#0F1923',
+    backgroundColor: c.accent,
+    color: c.bg,
   },
   completeBtnDone: {
     backgroundColor: '#2d5016',
@@ -2784,9 +2861,9 @@ const styles = {
   },
   navBtn: {
     padding: '12px 24px',
-    backgroundColor: '#1a2635',
-    border: '1px solid #D4A574',
-    color: '#D4A574',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.accent}`,
+    color: c.accent,
     fontSize: '14px',
     fontWeight: 600,
     fontFamily: '"Fira Code", monospace',
@@ -2797,8 +2874,8 @@ const styles = {
   navBtnDisabled: {
     opacity: '0.3',
     cursor: 'not-allowed',
-    borderColor: '#7B7567',
-    color: '#7B7567',
+    borderColor: c.muted,
+    color: c.muted,
   },
 
   // Quiz
@@ -2808,16 +2885,16 @@ const styles = {
   quizTitle: {
     fontSize: '24px',
     fontWeight: 700,
-    color: '#E8E2D6',
+    color: c.headingText,
     marginBottom: '12px',
   },
   quizInstructions: {
     fontSize: '14px',
-    color: '#C8C2B6',
+    color: c.text,
     marginBottom: '40px',
     padding: '16px',
-    backgroundColor: '#1a2635',
-    borderLeft: '3px solid #D4A574',
+    backgroundColor: c.hoverBg,
+    borderLeft: `3px solid ${c.accent}`,
     borderRadius: '2px',
   },
   quizScenario: {
@@ -2825,7 +2902,7 @@ const styles = {
   },
   scenarioLabel: {
     fontSize: '12px',
-    color: '#7B7567',
+    color: c.muted,
     fontFamily: '"Fira Code", monospace',
     marginBottom: '8px',
     letterSpacing: '0.5px',
@@ -2833,7 +2910,7 @@ const styles = {
   },
   scenarioText: {
     fontSize: '16px',
-    color: '#C8C2B6',
+    color: c.text,
     fontStyle: 'italic',
     marginBottom: '20px',
     lineHeight: '1.6',
@@ -2845,8 +2922,8 @@ const styles = {
   },
   quizOption: {
     padding: '16px',
-    backgroundColor: '#1a2635',
-    border: '1px solid #2a3640',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.border}`,
     borderRadius: '3px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
@@ -2855,31 +2932,31 @@ const styles = {
     alignItems: 'flex-start',
   },
   quizOptionHover: {
-    borderColor: '#D4A574',
-    backgroundColor: '#202d3a',
+    borderColor: c.accent,
+    backgroundColor: c.cardBg,
   },
   quizOptionSelected: {
-    borderColor: '#D4A574',
-    backgroundColor: '#242f3a',
+    borderColor: c.accent,
+    backgroundColor: c.cardBg,
   },
   quizOptionLetter: {
     fontSize: '14px',
     fontWeight: 700,
-    color: '#D4A574',
+    color: c.accent,
     fontFamily: '"Fira Code", monospace',
     minWidth: '24px',
   },
   quizOptionText: {
     fontSize: '14px',
-    color: '#C8C2B6',
+    color: c.text,
     lineHeight: '1.5',
   },
   submitBtn: {
     marginTop: '32px',
     padding: '12px 32px',
-    backgroundColor: '#D4A574',
+    backgroundColor: c.accent,
     border: 'none',
-    color: '#0F1923',
+    color: c.bg,
     fontSize: '14px',
     fontWeight: 700,
     fontFamily: '"Fira Code", monospace',
@@ -2892,7 +2969,7 @@ const styles = {
     cursor: 'not-allowed',
   },
   submitBtnHover: {
-    backgroundColor: '#e5b892',
+    opacity: '0.9',
   },
   quizPassBanner: {
     padding: '16px',
@@ -2917,10 +2994,10 @@ const styles = {
   },
   explanationText: {
     fontSize: '14px',
-    color: '#C8C2B6',
+    color: c.text,
     marginTop: '16px',
     padding: '12px',
-    backgroundColor: '#1a2635',
+    backgroundColor: c.hoverBg,
     borderLeft: '3px solid #4caf50',
     borderRadius: '2px',
   },
@@ -2933,14 +3010,14 @@ const styles = {
   syncSection: {
     marginTop: 'auto',
     paddingTop: '24px',
-    borderTop: '1px solid #1a2635',
+    borderTop: `1px solid ${c.border}`,
   },
   syncButton: {
     width: '100%',
     padding: '8px',
-    backgroundColor: '#1a2635',
-    border: '1px solid #2a3640',
-    color: '#7B7567',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.border}`,
+    color: c.muted,
     fontSize: '12px',
     fontFamily: '"Fira Code", monospace',
     cursor: 'pointer',
@@ -2948,23 +3025,23 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   syncButtonActive: {
-    borderColor: '#D4A574',
-    color: '#D4A574',
+    borderColor: c.accent,
+    color: c.accent,
   },
   syncPanel: {
     marginTop: '16px',
     padding: '16px',
-    backgroundColor: '#0F1923',
+    backgroundColor: c.bg,
     borderRadius: '3px',
-    border: '1px solid #1a2635',
+    border: `1px solid ${c.border}`,
   },
   syncInput: {
     width: '100%',
     padding: '8px',
     marginBottom: '8px',
-    backgroundColor: '#1a2635',
-    border: '1px solid #2a3640',
-    color: '#C8C2B6',
+    backgroundColor: c.hoverBg,
+    border: `1px solid ${c.border}`,
+    color: c.text,
     fontSize: '12px',
     fontFamily: '"Fira Code", monospace',
     borderRadius: '2px',
@@ -2972,14 +3049,14 @@ const styles = {
   },
   syncInputFocus: {
     outline: 'none',
-    borderColor: '#D4A574',
+    borderColor: c.accent,
   },
   syncActionBtn: {
     width: '100%',
     padding: '6px 12px',
-    backgroundColor: '#D4A574',
+    backgroundColor: c.accent,
     border: 'none',
-    color: '#0F1923',
+    color: c.bg,
     fontSize: '11px',
     fontWeight: 700,
     fontFamily: '"Fira Code", monospace',
@@ -2988,7 +3065,7 @@ const styles = {
     transition: 'all 0.2s ease',
   },
   syncActionBtnHover: {
-    backgroundColor: '#e5b892',
+    opacity: '0.9',
   },
 
   // Mobile
@@ -3014,22 +3091,52 @@ const styles = {
       display: 'block',
     },
   },
-};
+  };
+}
 
 // ============================================================================
 // Utility Functions
 // ============================================================================
 
-function renderContent(text) {
+function renderContent(text, styles, c) {
   if (!text) return null;
+
   return text.split('\n\n').map((para, i) => {
+    // Check if paragraph starts with **something:** or **something**:
+    const cardBlockMatch = para.match(/^\*\*([^*]+)\*\*:\s*(.*)/s);
+
+    if (cardBlockMatch) {
+      const [, header, content] = cardBlockMatch;
+      const contentParts = content.split(/\*\*(.*?)\*\*/g);
+
+      return React.createElement(
+        'div',
+        { key: i, style: styles.cardBlock },
+        React.createElement(
+          'h3',
+          { style: styles.cardBlockHeading },
+          header + ':'
+        ),
+        React.createElement(
+          'p',
+          { style: { ...styles.bodyText, marginBottom: '0' } },
+          ...contentParts.map((part, j) =>
+            j % 2 === 1
+              ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
+              : part
+          )
+        )
+      );
+    }
+
+    // Regular paragraph with bold formatting
     const parts = para.split(/\*\*(.*?)\*\*/g);
     return React.createElement(
       'p',
       { key: i, style: styles.bodyText },
       ...parts.map((part, j) =>
         j % 2 === 1
-          ? React.createElement('strong', { key: j, style: { color: '#E8E2D6', fontWeight: 700 } }, part)
+          ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
           : part
       )
     );
@@ -3072,6 +3179,11 @@ function VPCTOInterviewPrep() {
     return saved ? JSON.parse(saved) : {};
   });
 
+  const [theme, setTheme] = React.useState(() => {
+    const saved = localStorage.getItem('vpcto-theme');
+    return saved || 'dark';
+  });
+
   const [activePhase, setActivePhase] = React.useState(1);
   const [activeModule, setActiveModule] = React.useState(() => {
     const firstModule = modules.find((m) => m.phase === 1);
@@ -3085,6 +3197,10 @@ function VPCTOInterviewPrep() {
   const [githubToken, setGithubToken] = React.useState(() => localStorage.getItem('vpcto-github-token') || '');
   const [syncRepo, setSyncRepo] = React.useState(() => localStorage.getItem('vpcto-sync-repo') || '');
   const [syncStatus, setSyncStatus] = React.useState('');
+
+  // Get theme colors and styles
+  const colors = getThemeColors(theme);
+  const styles = getStyles(colors);
 
   const currentModule = modules.find((m) => m.id === activeModule);
   const phasedModules = modules.filter((m) => m.phase === activePhase);
@@ -3103,6 +3219,11 @@ function VPCTOInterviewPrep() {
     localStorage.setItem('vpcto-interview-prep-progress', JSON.stringify(state));
     syncProgressToGithub(state);
   }, [state]);
+
+  // Save theme to localStorage
+  React.useEffect(() => {
+    localStorage.setItem('vpcto-theme', theme);
+  }, [theme]);
 
   function updateModuleState(moduleId, updates) {
     setState((prev) => ({
@@ -3175,7 +3296,7 @@ function VPCTOInterviewPrep() {
               { style: { marginTop: '16px' } },
               React.createElement(
                 'div',
-                { style: { marginBottom: '8px', fontSize: '12px', color: '#7B7567' } },
+                { style: { marginBottom: '8px', fontSize: '12px', color: colors.muted } },
                 'Correct Answer:'
               ),
               React.createElement(
@@ -3235,14 +3356,14 @@ function VPCTOInterviewPrep() {
                   },
                   onMouseEnter: (e) => {
                     if (quizState[i] !== optIdx) {
-                      e.currentTarget.style.borderColor = '#D4A574';
-                      e.currentTarget.style.backgroundColor = '#202d3a';
+                      e.currentTarget.style.borderColor = colors.accent;
+                      e.currentTarget.style.backgroundColor = colors.cardBg;
                     }
                   },
                   onMouseLeave: (e) => {
                     if (quizState[i] !== optIdx) {
-                      e.currentTarget.style.borderColor = '#2a3640';
-                      e.currentTarget.style.backgroundColor = '#1a2635';
+                      e.currentTarget.style.borderColor = colors.border;
+                      e.currentTarget.style.backgroundColor = colors.hoverBg;
                     }
                   },
                 },
@@ -3293,7 +3414,7 @@ function VPCTOInterviewPrep() {
       'div',
       null,
       React.createElement('h2', { style: styles.sectionHeading }, section.heading),
-      renderContent(section.content),
+      renderContent(section.content, styles, colors),
       React.createElement(
         'button',
         {
@@ -3304,14 +3425,14 @@ function VPCTOInterviewPrep() {
           onClick: () => toggleSectionComplete(activeModule, activeSection),
           onMouseEnter: (e) => {
             if (!isComplete) {
-              e.currentTarget.style.backgroundColor = '#D4A574';
-              e.currentTarget.style.color = '#0F1923';
+              e.currentTarget.style.backgroundColor = colors.accent;
+              e.currentTarget.style.color = colors.bg;
             }
           },
           onMouseLeave: (e) => {
             if (!isComplete) {
-              e.currentTarget.style.backgroundColor = '#1a2635';
-              e.currentTarget.style.color = '#D4A574';
+              e.currentTarget.style.backgroundColor = colors.hoverBg;
+              e.currentTarget.style.color = colors.accent;
             }
           },
         },
@@ -3334,14 +3455,14 @@ function VPCTOInterviewPrep() {
             },
             onMouseEnter: (e) => {
               if (activeSection > 0) {
-                e.currentTarget.style.backgroundColor = '#D4A574';
-                e.currentTarget.style.color = '#0F1923';
+                e.currentTarget.style.backgroundColor = colors.accent;
+                e.currentTarget.style.color = colors.bg;
               }
             },
             onMouseLeave: (e) => {
               if (activeSection > 0) {
-                e.currentTarget.style.backgroundColor = '#1a2635';
-                e.currentTarget.style.color = '#D4A574';
+                e.currentTarget.style.backgroundColor = colors.hoverBg;
+                e.currentTarget.style.color = colors.accent;
               }
             },
           },
@@ -3361,14 +3482,14 @@ function VPCTOInterviewPrep() {
             },
             onMouseEnter: (e) => {
               if (activeSection < currentModule.sections.length - 1) {
-                e.currentTarget.style.backgroundColor = '#D4A574';
-                e.currentTarget.style.color = '#0F1923';
+                e.currentTarget.style.backgroundColor = colors.accent;
+                e.currentTarget.style.color = colors.bg;
               }
             },
             onMouseLeave: (e) => {
               if (activeSection < currentModule.sections.length - 1) {
-                e.currentTarget.style.backgroundColor = '#1a2635';
-                e.currentTarget.style.color = '#D4A574';
+                e.currentTarget.style.backgroundColor = colors.hoverBg;
+                e.currentTarget.style.color = colors.accent;
               }
             },
           },
@@ -3421,7 +3542,7 @@ function VPCTOInterviewPrep() {
               {
                 style: {
                   ...styles.sectionDot,
-                  backgroundColor: isSectionComplete(activeModule, i) ? '#D4A574' : '#7B7567',
+                  backgroundColor: isSectionComplete(activeModule, i) ? colors.accent : colors.muted,
                 },
               }
             ),
@@ -3442,7 +3563,7 @@ function VPCTOInterviewPrep() {
             {
               style: {
                 ...styles.sectionDot,
-                backgroundColor: state[activeModule]?.quizPassed ? '#D4A574' : '#7B7567',
+                backgroundColor: state[activeModule]?.quizPassed ? colors.accent : colors.muted,
               },
             }
           ),
@@ -3466,7 +3587,23 @@ function VPCTOInterviewPrep() {
         { style: styles.sidebarHeader },
         React.createElement('div', { style: styles.logoMark }, '◆'),
         React.createElement('div', { style: styles.courseTitle }, 'VP/CTO Interview Prep'),
-        React.createElement('div', { style: styles.courseSubtitle }, 'Executive Course')
+        React.createElement('div', { style: styles.courseSubtitle }, 'Executive Course'),
+        React.createElement(
+          'button',
+          {
+            style: styles.themeToggle,
+            onClick: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+            onMouseEnter: (e) => {
+              e.currentTarget.style.borderColor = colors.accent;
+              e.currentTarget.style.color = colors.accent;
+            },
+            onMouseLeave: (e) => {
+              e.currentTarget.style.borderColor = colors.border;
+              e.currentTarget.style.color = colors.muted;
+            },
+          },
+          theme === 'dark' ? '☀ Light' : '☾ Dark'
+        )
       ),
       React.createElement('div', { style: styles.progressLabel }, `${progress}% complete · ${phasedModules.filter((m) => state[m.id]?.quizPassed).length}/${modules.length} modules`),
       React.createElement('div', { style: styles.progressBar }, React.createElement('div', { style: { ...styles.progressBarFill, width: `${progress}%` } })),
@@ -3491,7 +3628,8 @@ function VPCTOInterviewPrep() {
                 }
               },
             },
-            `P${phase}`
+            React.createElement('span', { style: { opacity: 0.5, minWidth: '22px' } }, `P${phase}`),
+            phaseNames[phase]
           )
         )
       ),
@@ -3510,14 +3648,14 @@ function VPCTOInterviewPrep() {
               onClick: () => setActiveModule(mod.id),
               onMouseEnter: (e) => {
                 if (activeModule !== mod.id) {
-                  e.currentTarget.style.backgroundColor = '#1a2635';
-                  e.currentTarget.style.borderColor = '#2a3640';
+                  e.currentTarget.style.backgroundColor = colors.hoverBg;
+                  e.currentTarget.style.borderColor = colors.border;
                 }
               },
               onMouseLeave: (e) => {
                 if (activeModule !== mod.id) {
                   e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = '#1a2635';
+                  e.currentTarget.style.borderColor = colors.border;
                 }
               },
             },
@@ -3535,7 +3673,7 @@ function VPCTOInterviewPrep() {
                 ' min'
               )
             ),
-            React.createElement('div', { style: { ...styles.statusIcon, color: state[mod.id]?.quizPassed ? '#4caf50' : '#7B7567' } }, getStatusIcon(mod.id, state))
+            React.createElement('div', { style: { ...styles.statusIcon, color: state[mod.id]?.quizPassed ? '#4caf50' : colors.muted } }, getStatusIcon(mod.id, state))
           )
         )
       ),
@@ -3576,8 +3714,8 @@ function VPCTOInterviewPrep() {
               {
                 style: styles.syncActionBtn,
                 onClick: handleSyncSave,
-                onMouseEnter: (e) => (e.currentTarget.style.backgroundColor = '#e5b892'),
-                onMouseLeave: (e) => (e.currentTarget.style.backgroundColor = '#D4A574'),
+                onMouseEnter: (e) => (e.currentTarget.style.opacity = '0.9'),
+                onMouseLeave: (e) => (e.currentTarget.style.opacity = '1'),
               },
               syncStatus || 'Save Config'
             )
