@@ -2685,8 +2685,6 @@ function getStyles(c) {
 
   // Module List
   moduleList: {
-    flex: 1,
-    overflowY: 'auto',
     marginBottom: '24px',
   },
   moduleItem: {
@@ -3101,43 +3099,76 @@ function getStyles(c) {
 function renderContent(text, styles, c) {
   if (!text) return null;
 
-  return text.split('\n\n').map((para, i) => {
-    // Check if paragraph starts with **something:** or **something**:
-    const cardBlockMatch = para.match(/^\*\*([^*]+)\*\*:\s*(.*)/s);
+  // Split text into chunks by bold-header patterns like **Something:**
+  // This handles both \n\n separated paragraphs AND inline bold headers
+  const chunks = [];
+  const headerPattern = /\*\*([^*]+)\*\*:\s*/g;
+  let lastIndex = 0;
+  let match;
+  const matches = [];
 
-    if (cardBlockMatch) {
-      const [, header, content] = cardBlockMatch;
-      const contentParts = content.split(/\*\*(.*?)\*\*/g);
+  while ((match = headerPattern.exec(text)) !== null) {
+    matches.push({ index: match.index, header: match[1], fullMatch: match[0], end: match.index + match[0].length });
+  }
 
+  if (matches.length === 0) {
+    // No bold headers found, render as regular paragraphs
+    return text.split('\n\n').map((para, i) => {
+      const parts = para.split(/\*\*(.*?)\*\*/g);
       return React.createElement(
-        'div',
-        { key: i, style: styles.cardBlock },
-        React.createElement(
-          'h3',
-          { style: styles.cardBlockHeading },
-          header + ':'
-        ),
-        React.createElement(
-          'p',
-          { style: { ...styles.bodyText, marginBottom: '0' } },
-          ...contentParts.map((part, j) =>
-            j % 2 === 1
-              ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
-              : part
-          )
+        'p',
+        { key: i, style: styles.bodyText },
+        ...parts.map((part, j) =>
+          j % 2 === 1
+            ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
+            : part
+        )
+      );
+    });
+  }
+
+  // Extract intro text before first bold header
+  const introText = text.substring(0, matches[0].index).trim();
+  if (introText) {
+    chunks.push({ type: 'intro', text: introText });
+  }
+
+  // Extract each bold-header block
+  for (let m = 0; m < matches.length; m++) {
+    const contentStart = matches[m].end;
+    const contentEnd = m + 1 < matches.length ? matches[m + 1].index : text.length;
+    const content = text.substring(contentStart, contentEnd).trim();
+    chunks.push({ type: 'card', header: matches[m].header, content: content });
+  }
+
+  return chunks.map((chunk, i) => {
+    if (chunk.type === 'intro') {
+      const parts = chunk.text.split(/\*\*(.*?)\*\*/g);
+      return React.createElement(
+        'p',
+        { key: i, style: { ...styles.bodyText, marginBottom: '24px' } },
+        ...parts.map((part, j) =>
+          j % 2 === 1
+            ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
+            : part
         )
       );
     }
 
-    // Regular paragraph with bold formatting
-    const parts = para.split(/\*\*(.*?)\*\*/g);
+    // Card block
+    const contentParts = chunk.content.split(/\*\*(.*?)\*\*/g);
     return React.createElement(
-      'p',
-      { key: i, style: styles.bodyText },
-      ...parts.map((part, j) =>
-        j % 2 === 1
-          ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
-          : part
+      'div',
+      { key: i, style: styles.cardBlock },
+      React.createElement('h3', { style: styles.cardBlockHeading }, chunk.header),
+      chunk.content && React.createElement(
+        'p',
+        { style: { ...styles.bodyText, marginBottom: '0' } },
+        ...contentParts.map((part, j) =>
+          j % 2 === 1
+            ? React.createElement('strong', { key: j, style: { color: c.headingText, fontWeight: 700 } }, part)
+            : part
+        )
       )
     );
   });
