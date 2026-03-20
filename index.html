@@ -3972,7 +3972,8 @@ function VPCTOInterviewPrep() {
                 ...styles.moduleItem,
                 ...(activeModule === mod.id && styles.moduleItemActive),
               },
-              onClick: () => setActiveModule(mod.id),
+              tabIndex: -1,
+              onClick: (e) => { setActiveModule(mod.id); e.currentTarget.blur(); },
               onMouseEnter: (e) => {
                 if (activeModule !== mod.id) {
                   e.currentTarget.style.backgroundColor = colors.hoverBg;
