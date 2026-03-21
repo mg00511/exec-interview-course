@@ -119,6 +119,8 @@ function getStyles(c) {
     marginLeft: '280px',
     overflowY: 'auto',
     padding: '40px 80px 40px 60px',
+    display: 'flex',
+    justifyContent: 'center',
   },
   mainContentFullWidth: {
     marginLeft: 0,
@@ -1296,7 +1298,11 @@ function VPCTOInterviewPrep() {
     React.createElement(
       'div',
       { style: { ...styles.mainContent, ...(isMobile ? { marginLeft: 0, padding: '60px 20px 40px' } : {}) } },
-      renderMainContent()
+      React.createElement(
+        'div',
+        { style: { maxWidth: '860px', width: '100%' } },
+        renderMainContent()
+      )
     )
   );
 }
