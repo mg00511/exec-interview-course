@@ -26,7 +26,13 @@
             #menu-toggle { display: flex !important; }
             #sidebar { position: fixed !important; z-index: 900; height: 100%; }
         }
-    </style>
+    
+        @media (max-width: 1024px) {
+            h1 { word-break: break-word; }
+            div[style*="overflowX"] { -ms-overflow-style: none; scrollbar-width: none; }
+            div[style*="overflowX"]::-webkit-scrollbar { display: none; }
+        }
+        </style>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
@@ -1032,11 +1038,11 @@ function VPCTOInterviewPrep() {
     return React.createElement(
       'div',
       null,
-      React.createElement('h2', { style: styles.sectionHeading }, section.heading),
+      React.createElement('h2', { style: { ...styles.sectionHeading, ...(isMobile ? { fontSize: '22px' } : {}) } }, section.heading),
       renderContent(section.content, styles, colors),
       React.createElement(
         'div',
-        { style: styles.navButtons },
+        { style: { ...styles.navButtons, ...(isMobile ? { flexDirection: 'column', gap: '8px' } : {}) } },
         React.createElement(
           'button',
           {
@@ -1113,12 +1119,12 @@ function VPCTOInterviewPrep() {
         'div',
         { style: styles.moduleHeader },
         React.createElement('div', { style: styles.moduleNumber }, `Module ${moduleIndex} of ${modules.length}`),
-        React.createElement('h1', { style: styles.moduleTitle }, currentModule.title),
-        React.createElement('h2', { style: styles.moduleSubtitle }, currentModule.subtitle)
+        React.createElement('h1', { style: { ...styles.moduleTitle, ...(isMobile ? { fontSize: '26px', lineHeight: '1.3' } : {}) } }, currentModule.title),
+        React.createElement('h2', { style: { ...styles.moduleSubtitle, ...(isMobile ? { fontSize: '15px' } : {}) } }, currentModule.subtitle)
       ),
       React.createElement(
         'div',
-        { style: styles.sectionTabs },
+        { style: { ...styles.sectionTabs, ...(isMobile ? { flexWrap: 'nowrap', overflowX: 'auto', gap: '8px', WebkitOverflowScrolling: 'touch' } : {}) } },
         ...currentModule.sections.map((section, i) =>
           React.createElement(
             'button',
@@ -1127,6 +1133,7 @@ function VPCTOInterviewPrep() {
               style: {
                 ...styles.sectionTab,
                 ...(activeSection === i && !showQuiz && styles.sectionTabActive),
+                ...(isMobile ? { fontSize: '12px', padding: '6px 10px', whiteSpace: 'nowrap' } : {}),
               },
               onClick: () => {
                 setShowQuiz(false);
