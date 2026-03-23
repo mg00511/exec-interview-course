@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>VP/CTO Interview Prep — Executive Course</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23D4A574'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='800' fill='%230F1923' font-family='monospace'>VP</text></svg>" />
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet" />
@@ -19,6 +19,9 @@
         button:focus-visible { outline: none !important; box-shadow: none !important; }
         a:focus, a:active { outline: none !important; }
         *:focus, *:focus-visible { outline: none !important; box-shadow: none !important; }
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .nav-buttons-area { padding-bottom: env(safe-area-inset-bottom) !important; }
+        }
         @media (max-width: 1024px) {
             #menu-toggle { display: flex !important; }
             #sidebar { position: fixed !important; z-index: 900; height: 100%; }
@@ -28,7 +31,7 @@
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
 </head>
-<body>
+<body style="padding-bottom: env(safe-area-inset-bottom, 0px);">
     <div id="root"></div>
     <script type="text/babel">
 const { useState, useEffect, useRef } = React;
@@ -85,7 +88,8 @@ function getStyles(c) {
   // Layout
   container: {
     display: 'flex',
-    height: '100vh',
+    height: '100dvh',
+    minHeight: '-webkit-fill-available',
     backgroundColor: c.bg,
     color: c.text,
     fontFamily: '"Source Serif 4", serif',
@@ -102,7 +106,8 @@ function getStyles(c) {
     position: 'fixed',
     left: 0,
     top: 0,
-    height: '100vh',
+    height: '100dvh',
+    minHeight: '-webkit-fill-available',
     zIndex: 100,
   },
   sidebarMobile: {
@@ -118,6 +123,7 @@ function getStyles(c) {
     flex: 1,
     marginLeft: '280px',
     overflowY: 'auto',
+    WebkitOverflowScrolling: 'touch',
     padding: '40px 40px 80px 40px',
     display: 'flex',
     justifyContent: 'center',
@@ -580,7 +586,10 @@ function getStyles(c) {
   },
 
   // Mobile
-  '@media (max-width: 1024px)': {
+  '@supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .nav-buttons-area { padding-bottom: env(safe-area-inset-bottom) !important; }
+        }
+        @media (max-width: 1024px)': {
     container: {
       flexDirection: 'column',
     },
