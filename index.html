@@ -19,7 +19,7 @@
         button:focus-visible { outline: none !important; box-shadow: none !important; }
         a:focus, a:active { outline: none !important; }
         *:focus, *:focus-visible { outline: none !important; box-shadow: none !important; }
-        @media (max-width: 800px) {
+        @media (max-width: 1024px) {
             #menu-toggle { display: flex !important; }
             #sidebar { position: fixed !important; z-index: 900; height: 100%; }
         }
@@ -118,7 +118,7 @@ function getStyles(c) {
     flex: 1,
     marginLeft: '280px',
     overflowY: 'auto',
-    padding: '40px 80px 40px 60px',
+    padding: '40px 40px 80px 40px',
     display: 'flex',
     justifyContent: 'center',
   },
@@ -360,12 +360,17 @@ function getStyles(c) {
   },
   navButtons: {
     display: 'flex',
-    gap: '16px',
+    gap: '12px',
     marginTop: '40px',
+    marginBottom: '40px',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
   },
   navBtn: {
     padding: '12px 24px',
+    minWidth: '140px',
+    flex: '1 1 auto',
+    textAlign: 'center',
     backgroundColor: c.hoverBg,
     border: `1px solid ${c.accent}`,
     color: c.accent,
@@ -516,6 +521,11 @@ function getStyles(c) {
     padding: '12px 16px',
     borderTop: `1px solid ${c.border}`,
     marginTop: 'auto',
+    flexShrink: 0,
+    position: 'sticky',
+    bottom: 0,
+    backgroundColor: c.sidebarBg,
+    zIndex: 10,
   },
   syncButton: {
     width: '100%',
@@ -570,7 +580,7 @@ function getStyles(c) {
   },
 
   // Mobile
-  '@media (max-width: 800px)': {
+  '@media (max-width: 1024px)': {
     container: {
       flexDirection: 'column',
     },
@@ -757,7 +767,7 @@ function VPCTOInterviewPrep() {
   });
   const [activeSection, setActiveSection] = React.useState(0);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth <= 800);
+  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth <= 1024);
   const [showQuiz, setShowQuiz] = React.useState(false);
   const [showSync, setShowSync] = React.useState(false);
   const [syncToken, setSyncToken] = React.useState('');
@@ -774,7 +784,7 @@ function VPCTOInterviewPrep() {
 
   // Track mobile viewport
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 800);
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -1297,7 +1307,7 @@ function VPCTOInterviewPrep() {
     renderSidebar(),
     React.createElement(
       'div',
-      { style: { ...styles.mainContent, ...(isMobile ? { marginLeft: 0, padding: '60px 20px 40px' } : {}) } },
+      { style: { ...styles.mainContent, ...(isMobile ? { marginLeft: 0, padding: '60px 20px 120px' } : {}) } },
       React.createElement(
         'div',
         { style: { maxWidth: '860px', width: '100%' } },
