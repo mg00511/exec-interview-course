@@ -1048,6 +1048,12 @@ function VPCTOInterviewPrep() {
                       e.currentTarget.style.backgroundColor = colors.hoverBg;
                     }
                   },
+                  ref: (el) => {
+                    if (el && quizState[i] !== optIdx) {
+                      el.style.borderColor = colors.border;
+                      el.style.backgroundColor = colors.hoverBg;
+                    }
+                  },
                 },
                 React.createElement('div', { style: styles.quizOptionLetter }, String.fromCharCode(65 + optIdx)),
                 React.createElement('div', { style: styles.quizOptionText }, option)
