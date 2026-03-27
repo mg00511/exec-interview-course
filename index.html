@@ -781,14 +781,48 @@ function getStatusIcon(moduleId, state) {
 const ghRepo = "mg00511/exec-interview-course";
 const ghFile = "progress.json";
 
+// Deep merge: combines progress from local and remote, keeping the most complete data for each module
+function mergeProgress(local, remote) {
+  if (!remote) return local;
+  if (!local || Object.keys(local).length === 0) return remote;
+  var merged = Object.assign({}, remote);
+  Object.keys(local).forEach(function(modId) {
+    if (!merged[modId]) {
+      merged[modId] = local[modId];
+    } else {
+      // Merge completedSections: union of both arrays
+      var localSections = (local[modId].completedSections || []);
+      var remoteSections = (merged[modId].completedSections || []);
+      var allSections = remoteSections.slice();
+      localSections.forEach(function(s) { if (allSections.indexOf(s) === -1) allSections.push(s); });
+      merged[modId].completedSections = allSections.sort(function(a,b){return a-b;});
+      // Keep quizPassed if either side passed
+      if (local[modId].quizPassed || merged[modId].quizPassed) {
+        merged[modId].quizPassed = true;
+      }
+      // Keep quiz answers from whichever side submitted
+      if (local[modId].quiz && local[modId].quiz.submitted) {
+        merged[modId].quiz = local[modId].quiz;
+      }
+    }
+  });
+  return merged;
+}
+
 function githubSync(token, progress) {
   var headers = { "Authorization": "token " + token, "Accept": "application/vnd.github+json" };
   return fetch("https://api.github.com/repos/" + ghRepo + "/contents/" + ghFile, { headers: headers })
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(existing) {
+      // Merge with remote before pushing so we never overwrite another device's progress
+      var remote = null;
+      if (existing && existing.content) {
+        try { remote = JSON.parse(atob(existing.content)); } catch(e) {}
+      }
+      var merged = mergeProgress(progress, remote);
       var body = {
         message: "Sync progress",
-        content: btoa(JSON.stringify(progress, null, 2))
+        content: btoa(JSON.stringify(merged, null, 2))
       };
       if (existing && existing.sha) body.sha = existing.sha;
       return fetch("https://api.github.com/repos/" + ghRepo + "/contents/" + ghFile, {
@@ -891,7 +925,7 @@ function VPCTOInterviewPrep() {
     return (state[moduleId]?.completedSections || []).includes(sectionIndex);
   }
 
-  // Load sync token on mount and auto-pull
+  // Load sync token on mount and auto-pull with merge
   React.useEffect(() => {
     try {
       const token = localStorage.getItem('vpcto-gh-token');
@@ -899,11 +933,12 @@ function VPCTOInterviewPrep() {
         setSyncToken(token);
         githubLoad(token).then(function(remote) {
           if (remote) {
-            const localCount = Object.keys(state).length;
-            const remoteCount = Object.keys(remote).length;
-            if (remoteCount > localCount) {
-              setState(remote);
-              localStorage.setItem('vpcto-interview-prep-progress', JSON.stringify(remote));
+            const merged = mergeProgress(state, remote);
+            const mergedStr = JSON.stringify(merged);
+            const localStr = JSON.stringify(state);
+            if (mergedStr !== localStr) {
+              setState(merged);
+              localStorage.setItem('vpcto-interview-prep-progress', mergedStr);
             }
           }
         });
@@ -916,15 +951,16 @@ function VPCTOInterviewPrep() {
     localStorage.setItem('vpcto-gh-token', syncToken);
     setSyncStatus('syncing');
     githubLoad(syncToken).then(function(remote) {
-      if (remote && Object.keys(remote).length > Object.keys(state).length) {
-        setState(remote);
-        localStorage.setItem('vpcto-interview-prep-progress', JSON.stringify(remote));
-        setSyncStatus('pulled');
-      } else {
-        return githubSync(syncToken, state).then(function(ok) {
-          setSyncStatus(ok ? 'pushed' : 'error');
-        });
+      // Always merge local + remote, then push the merged result
+      var merged = mergeProgress(state, remote);
+      var mergedStr = JSON.stringify(merged);
+      if (mergedStr !== JSON.stringify(state)) {
+        setState(merged);
+        localStorage.setItem('vpcto-interview-prep-progress', mergedStr);
       }
+      return githubSync(syncToken, merged).then(function(ok) {
+        setSyncStatus(ok ? 'pushed' : 'error');
+      });
     }).catch(function() { setSyncStatus('error'); });
   }
 
@@ -934,8 +970,9 @@ function VPCTOInterviewPrep() {
     setSyncStatus('syncing');
     githubLoad(token).then(function(remote) {
       if (remote) {
-        setState(remote);
-        localStorage.setItem('vpcto-interview-prep-progress', JSON.stringify(remote));
+        var merged = mergeProgress(state, remote);
+        setState(merged);
+        localStorage.setItem('vpcto-interview-prep-progress', JSON.stringify(merged));
         setSyncStatus('pulled');
       } else {
         setSyncStatus('no-remote');
